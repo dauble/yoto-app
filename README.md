@@ -131,7 +131,7 @@ On subsequent generations:
 
 ### Deploy to Vercel
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/yoto-f1-card)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yoto-dev/yoto-f1-card)
 
 1. Click the deploy button above
 2. Add your environment variables in Vercel dashboard
