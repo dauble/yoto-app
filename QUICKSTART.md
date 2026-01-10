@@ -23,7 +23,7 @@ Get your Yoto F1 Card Generator running in 5 minutes!
 
 ```bash
 # Clone or download the repository
-git clone https://github.com/yourusername/yoto-f1-card.git
+git clone https://github.com/<your-github-username>/yoto-f1-card.git
 cd yoto-f1-card
 
 # Install dependencies
