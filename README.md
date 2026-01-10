@@ -1,2 +1,2 @@
 # yoto-app
-Simple app for custom Yoto cards
+Initial commit for new Yoto Card app.
