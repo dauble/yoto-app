@@ -3,81 +3,111 @@
 
 const F1_API_BASE = "https://api.openf1.org/v1";
 
+// Mock data for when API is unavailable
+const MOCK_DATA = {
+  nextRace: {
+    name: "Australian Grand Prix",
+    location: "Melbourne, Australia",
+    circuit: "Albert Park Circuit",
+    date: "Sunday, March 24, 2024",
+    time: "03:00 PM AEDT",
+    year: 2024
+  },
+  drivers: [
+    { position: 1, driver: "Max Verstappen", team: "Red Bull Racing", points: 575 },
+    { position: 2, driver: "Sergio Perez", team: "Red Bull Racing", points: 285 },
+    { position: 3, driver: "Lewis Hamilton", team: "Mercedes", points: 234 },
+    { position: 4, driver: "Fernando Alonso", team: "Aston Martin", points: 206 },
+    { position: 5, driver: "Carlos Sainz", team: "Ferrari", points: 200 }
+  ],
+  teams: [
+    { position: 1, team: "Red Bull Racing", points: 860 },
+    { position: 2, team: "Mercedes", points: 409 },
+    { position: 3, team: "Ferrari", points: 406 },
+    { position: 4, team: "McLaren", points: 302 },
+    { position: 5, team: "Aston Martin", points: 280 }
+  ]
+};
+
 /**
  * Get the next upcoming race in the current season
  */
 export async function getNextRace() {
-  const currentYear = new Date().getFullYear();
-  const now = new Date().toISOString();
-  
-  // Get all race sessions for the current year, ordered by date
-  const response = await fetch(
-    `${F1_API_BASE}/sessions?session_name=Race&year=${currentYear}&date_start>=${now.split('T')[0]}`
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch race data");
-  }
-
-  const sessions = await response.json();
-  
-  if (!sessions || sessions.length === 0) {
-    // If no future races this year, try next year
-    const nextYear = currentYear + 1;
-    const nextYearResponse = await fetch(
-      `${F1_API_BASE}/sessions?session_name=Race&year=${nextYear}`
+  try {
+    const currentYear = new Date().getFullYear();
+    const now = new Date().toISOString();
+    
+    // Get all race sessions for the current year, ordered by date
+    const response = await fetch(
+      `${F1_API_BASE}/sessions?session_name=Race&year=${currentYear}&date_start>=${now.split('T')[0]}`,
+      { signal: AbortSignal.timeout(5000) }
     );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch race data");
+    }
+
+    const sessions = await response.json();
     
-    if (!nextYearResponse.ok) {
-      throw new Error("No upcoming races found");
+    if (!sessions || sessions.length === 0) {
+      // If no future races this year, try next year
+      const nextYear = currentYear + 1;
+      const nextYearResponse = await fetch(
+        `${F1_API_BASE}/sessions?session_name=Race&year=${nextYear}`,
+        { signal: AbortSignal.timeout(5000) }
+      );
+      
+      if (!nextYearResponse.ok) {
+        throw new Error("No upcoming races found");
+      }
+      
+      const nextYearSessions = await nextYearResponse.json();
+      if (!nextYearSessions || nextYearSessions.length === 0) {
+        throw new Error("No upcoming races found");
+      }
+      
+      return formatRaceData(nextYearSessions[0]);
     }
     
-    const nextYearSessions = await nextYearResponse.json();
-    if (!nextYearSessions || nextYearSessions.length === 0) {
-      throw new Error("No upcoming races found");
-    }
-    
-    return formatRaceData(nextYearSessions[0]);
+    // Return the first (earliest) race
+    return formatRaceData(sessions[0]);
+  } catch (error) {
+    console.log("Using mock race data due to API error:", error.message);
+    return MOCK_DATA.nextRace;
   }
-  
-  // Return the first (earliest) race
-  return formatRaceData(sessions[0]);
 }
 
 /**
  * Get current driver standings (top 5)
  */
 export async function getDriverStandings() {
-  const currentYear = new Date().getFullYear();
-  
-  // The OpenF1 API doesn't have a direct standings endpoint
-  // We'll fetch drivers and their data for the current season
-  // Note: This is a simplified approach - in a real app you'd calculate standings
-  // from race results or use a different API
-  const response = await fetch(
-    `${F1_API_BASE}/drivers?session_key=latest`
-  );
+  try {
+    const currentYear = new Date().getFullYear();
+    
+    // The OpenF1 API doesn't have a direct standings endpoint
+    // We'll fetch drivers and their data for the current season
+    const response = await fetch(
+      `${F1_API_BASE}/drivers?session_key=latest`,
+      { signal: AbortSignal.timeout(5000) }
+    );
 
-  if (!response.ok) {
-    // Fallback: return mock data for demonstration
-    return [
-      { position: 1, driver: "Max Verstappen", team: "Red Bull Racing", points: 575 },
-      { position: 2, driver: "Sergio Perez", team: "Red Bull Racing", points: 285 },
-      { position: 3, driver: "Lewis Hamilton", team: "Mercedes", points: 234 },
-      { position: 4, driver: "Fernando Alonso", team: "Aston Martin", points: 206 },
-      { position: 5, driver: "Carlos Sainz", team: "Ferrari", points: 200 }
-    ];
+    if (!response.ok) {
+      throw new Error("Failed to fetch driver data");
+    }
+
+    const drivers = await response.json();
+    
+    // Return top 5 drivers (using mock points since API doesn't provide standings directly)
+    return drivers.slice(0, 5).map((driver, index) => ({
+      position: index + 1,
+      driver: driver.full_name || `${driver.first_name} ${driver.last_name}`,
+      team: driver.team_name || "Unknown Team",
+      points: 500 - (index * 50) // Mock points for demonstration
+    }));
+  } catch (error) {
+    console.log("Using mock driver standings due to API error:", error.message);
+    return MOCK_DATA.drivers;
   }
-
-  const drivers = await response.json();
-  
-  // Return top 5 drivers (using mock points since API doesn't provide standings directly)
-  return drivers.slice(0, 5).map((driver, index) => ({
-    position: index + 1,
-    driver: driver.full_name || `${driver.first_name} ${driver.last_name}`,
-    team: driver.team_name || "Unknown Team",
-    points: 500 - (index * 50) // Mock points for demonstration
-  }));
 }
 
 /**
@@ -86,13 +116,7 @@ export async function getDriverStandings() {
 export async function getTeamStandings() {
   // OpenF1 API doesn't have team standings endpoint
   // Return mock data for demonstration
-  return [
-    { position: 1, team: "Red Bull Racing", points: 860 },
-    { position: 2, team: "Mercedes", points: 409 },
-    { position: 3, team: "Ferrari", points: 406 },
-    { position: 4, team: "Aston Martin", points: 280 },
-    { position: 5, team: "McLaren", points: 302 }
-  ];
+  return MOCK_DATA.teams;
 }
 
 /**
