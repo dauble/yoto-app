@@ -179,9 +179,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Built with ❤️ for the Yoto community
 
-- Driver standings
-- Constructor/team standings
-
 ## Customization
 
 1. Modify `src/services/f1Service.js` to adjust data fetching
