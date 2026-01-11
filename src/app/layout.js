@@ -1,5 +1,8 @@
 import "./globals.css";
 
+// Note: Using GitHub asset URLs for favicon and social share images.
+// For production use, consider hosting these images in the /public directory
+// and updating the URLs to relative paths (e.g., "/favicon.png", "/og-image.png")
 export const metadata = {
   title: "Yoto Formula 1 Card Generator",
   description: "Create Yoto cards with Formula 1 information",
