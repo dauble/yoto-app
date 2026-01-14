@@ -2,6 +2,9 @@
 import { useState, useEffect } from "react";
 import styles from "./page.module.css";
 
+// Maximum file size for audio uploads (100MB)
+const MAX_FILE_SIZE_MB = 100;
+
 export default function Home() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -115,9 +118,9 @@ export default function Home() {
       }
 
       // Validate file size (100MB limit)
-      const maxSize = 100 * 1024 * 1024; // 100MB in bytes
+      const maxSize = MAX_FILE_SIZE_MB * 1024 * 1024; // Convert MB to bytes
       if (fileInput.files[0].size > maxSize) {
-        throw new Error('File size exceeds 100MB limit. Please choose a smaller file.');
+        throw new Error(`File size exceeds ${MAX_FILE_SIZE_MB}MB limit. Please choose a smaller file.`);
       }
 
       const formData = new FormData();
