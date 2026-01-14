@@ -1,9 +1,8 @@
 // API Route to generate a Formula 1 card
 import { getNextRace, getDriverStandings, getTeamStandings, generateF1Script } from "@/services/f1Service";
-import { createTextToSpeechPlaylist, buildF1Chapters, deployToAllDevices, uploadCoverImage } from "@/services/yotoService";
+import { createTextToSpeechPlaylist, buildF1Chapters, deployToAllDevices } from "@/services/yotoService";
+import { uploadCardCoverImage } from "@/utils/imageUtils";
 import Configstore from "configstore";
-import { readFileSync } from "fs";
-import { join } from "path";
 
 const config = new Configstore("yoto-f1-card-tokens");
 

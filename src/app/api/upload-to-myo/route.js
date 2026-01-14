@@ -1,8 +1,7 @@
 // API Route to upload audio to MYO card
-import { requestAudioUploadUrl, uploadAudioFile, waitForTranscoding, createAudioCard, uploadCoverImage } from "@/services/yotoService";
+import { requestAudioUploadUrl, uploadAudioFile, waitForTranscoding, createAudioCard } from "@/services/yotoService";
+import { uploadCardCoverImage } from "@/utils/imageUtils";
 import Configstore from "configstore";
-import { readFileSync } from "fs";
-import { join } from "path";
 
 const config = new Configstore("yoto-f1-card-tokens");
 
@@ -29,39 +28,6 @@ function getStoredMyoCardId() {
  */
 function storeMyoCardId(cardId) {
   config.set("f1MyoCardId", cardId);
-}
-
-/**
- * Upload card cover image if available
- */
-async function uploadCardCoverImage(accessToken) {
-  try {
-    const publicDir = join(process.cwd(), 'public', 'assets', 'card-images');
-    const possibleImages = ['countdown-to-f1-card.png'];
-    
-    for (const imageName of possibleImages) {
-      try {
-        const imagePath = join(publicDir, imageName);
-        const imageBuffer = readFileSync(imagePath);
-        const ext = imageName.split('.').pop().toLowerCase();
-        const contentType = ext === 'png' ? 'image/png' : 'image/jpeg';
-        
-        console.log(`Found cover image: ${imageName}, uploading...`);
-        const mediaUrl = await uploadCoverImage(imageBuffer, accessToken, contentType);
-        console.log(`Cover image uploaded: ${mediaUrl}`);
-        
-        return mediaUrl;
-      } catch (err) {
-        console.error(`Error processing cover image "${imageName}":`, err);
-        continue;
-      }
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('Error uploading cover image:', error);
-    return null;
-  }
 }
 
 export async function POST(request) {
