@@ -16,7 +16,10 @@ Your Yoto F1 app now automatically uploads custom cover images to display as car
 
 Place your cover image in the `public/assets/card-images/` directory with this name:
 
-- `countdown-to-f1-card.png` (required filename)
+- `f1-card-cover.jpg` (recommended)
+- `f1-card-cover.jpeg`
+- `f1-card-cover.png`
+- `countdown-to-f1-card.png` (legacy filename, still supported)
 
 ### Step 2: Generate Your Card
 
