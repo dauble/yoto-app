@@ -30,8 +30,24 @@
 .authSection {
   text-align: center;
   margin-bottom: 2rem;
-  padding-bottom: 2rem;
+  padding: 2rem;
   border-bottom: 1px solid #eee;
+  background: #f8f9ff;
+  border-radius: 8px;
+}
+
+.authMessage {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #667eea;
+  font-size: 1.1rem;
 }
 
 .loginButton {
@@ -50,11 +66,98 @@
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
+.logoutSection {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0 0;
+}
+
+.logoutButton {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.logoutButton:hover {
+  background: #f5f5f5;
+  border-color: #999;
+  color: #333;
+}
+
 .form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   margin-bottom: 2rem;
+}
+
+.formTitle {
+  color: #333;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+}
+
+.formDescription {
+  color: #666;
+  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+}
+
+.divider {
+  text-align: center;
+  margin: 1rem 0;
+  position: relative;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 45%;
+  height: 1px;
+  background: #ddd;
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
+.divider span {
+  background: white;
+  padding: 0 1rem;
+  color: #999;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.fileInput {
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 2px dashed #667eea;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #f8f9ff;
+  transition: all 0.3s ease;
+}
+
+.fileInput:hover:not(:disabled) {
+  border-color: #5568d3;
+  background: #f0f4ff;
+}
+
+.fileInput:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .input {
@@ -89,6 +192,30 @@
 }
 
 .button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.buttonSecondary {
+  padding: 1rem;
+  font-size: 1rem;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.buttonSecondary:hover:not(:disabled) {
+  background: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.buttonSecondary:disabled {
   background: #ccc;
   cursor: not-allowed;
   transform: none;
@@ -155,6 +282,69 @@
   font-size: 0.9rem;
   color: #667eea;
   font-style: italic;
+}
+
+.completedNote {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #e8f5e9;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.failedNote {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #ffebee;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #c62828;
+  font-weight: 500;
+}
+
+.myoStatus {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #4caf50;
+}
+
+.myoStatus h3 {
+  color: #4caf50;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.myoStatus p {
+  margin: 0.5rem 0;
+  color: #333;
+}
+
+.myoInstructions {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f0f4ff;
+  border-radius: 6px;
+}
+
+.myoInstructions h4 {
+  color: #667eea;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.myoInstructions ol {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.myoInstructions li {
+  margin: 0.5rem 0;
+  color: #333;
+  line-height: 1.5;
 }
 
 .deviceDeployment {

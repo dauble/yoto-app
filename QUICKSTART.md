@@ -67,10 +67,10 @@ You should see:
 ### 5️⃣ Use the App (1 min)
 
 1. Open [http://localhost:3000](http://localhost:3000)
-2. Click **"🔐 Connect with Yoto"**
+2. Click **"🔐 Connect with Yoto"** (authentication is required before using any features)
 3. Authenticate with your Yoto account
 4. Click **"Generate F1 Card"**
-5. Wait 10-20 seconds for processing
+5. Watch the real-time status: Queued → Processing → Completed
 6. Check your Yoto library - your card is ready! 🎉
 
 ## 🎯 First Time Tips
@@ -91,6 +91,10 @@ You should see:
 ### Updating the Card
 
 Just click "Generate F1 Card" again! The app will automatically update your existing card instead of creating a new one.
+
+### Logging Out
+
+Click the "Logout" button in the footer to disconnect your Yoto account and clear your session.
 
 ## 🐛 Troubleshooting
 

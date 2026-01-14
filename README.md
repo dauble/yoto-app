@@ -4,12 +4,22 @@ A Next.js application that automatically creates and updates Yoto MYO (Make Your
 
 ## ✨ Features
 
+### Core Features
+
 - 🏁 **Next Race Information** - Automatically fetches the next upcoming F1 race
 - 🌍 **Timezone Conversion** - Displays race time in the user's local timezone based on IP address
 - 🔄 **Auto-Update** - Updates the same card with new race info (no need to create new cards each time)
 - 🎙️ **Text-to-Speech** - Uses ElevenLabs via Yoto Labs API to generate audio
-- 🔐 **OAuth Authentication** - Secure authentication with Yoto
+- 🔐 **OAuth Authentication** - Secure authentication with Yoto (required before use)
 - 📱 **Responsive Design** - Works on desktop and mobile devices
+
+### Advanced Features
+
+- 🖼️ **Custom Cover Images** - Automatically uploads cover art from `public/assets/card-images/`
+- 📊 **Real-Time Job Status** - Live polling shows TTS generation progress (queued → processing → completed)
+- 🎵 **Audio File Upload** - Upload your own audio files to create MYO-compatible cards
+- 🔓 **Logout Functionality** - Easily logout and switch Yoto accounts
+- 📡 **Device Deployment** - Automatically deploys to all connected Yoto devices
 
 ## 🚀 Quick Start
 
@@ -64,11 +74,32 @@ A Next.js application that automatically creates and updates Yoto MYO (Make Your
 
 ## 📖 How to Use
 
-1. **Connect with Yoto** - Click the "Connect with Yoto" button and authenticate
-2. **Generate Card** - Click "Generate F1 Card" to create your first card
-3. **Check Your Library** - The card will appear in your Yoto library within moments
+### First Time Setup
+
+1. **Connect with Yoto** - Click the "🔐 Connect with Yoto" button and authenticate
+   - Authentication is required before you can use any features
+   - Your session will persist across browser restarts
+2. **Add Cover Image** (Optional) - Place an image named `countdown-to-f1-card.png` in `public/assets/card-images/`
+
+### Generate TTS Card
+
+1. **Generate Card** - Click "Generate F1 Card" to create your first card with text-to-speech
+2. **Watch Progress** - Real-time status shows: Queued → Processing → Completed
+3. **Check Your Library** - The card will appear in your Yoto library when complete
 4. **Link to MYO Card** - Use the Yoto app to link the playlist to your physical MYO card
 5. **Auto-Update** - Click "Generate F1 Card" again anytime to update with the latest race info!
+
+### Upload Audio to MYO Card
+
+1. **Prepare Audio** - Have an MP3, M4A, or WAV file ready
+2. **Upload** - Use the "Upload Audio to MYO Card" form to select and upload your audio
+3. **Wait for Processing** - The app will upload and transcode your audio (15-60 seconds)
+4. **Link to MYO** - Follow the instructions to link the card in your Yoto app
+
+### Logout
+
+- Click the "Logout" button in the footer to disconnect your Yoto account
+- You'll need to re-authenticate to use the app again
 
 ## 🎯 How Auto-Update Works
 
@@ -151,17 +182,38 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for de
 
 ### "Not authenticated" error
 
-- Click the "Connect with Yoto" button to authenticate
+- You must click "🔐 Connect with Yoto" before using any features
+- If you see the login button, your session has expired - click it to re-authenticate
 - Check that your OAuth credentials are correct in `.env`
 - Make sure your Yoto app has both redirect URIs configured:
   - `http://localhost:3000/api/auth/callback` (local)
   - `https://your-domain.com/api/auth/callback` (production)
 
+### Can't see the login button
+
+- Click "Logout" in the footer to clear your session
+- Alternatively, visit `http://localhost:3000/api/auth/logout`
+- Refresh the page and the login button should appear
+
 ### Card not updating
 
-- Wait a few moments - TTS processing can take 10-30 seconds
+- Watch the real-time status indicator - it shows: Queued → Processing → Completed
+- TTS processing typically takes 10-30 seconds
+- When status shows "✅ Completed", your card is ready in your Yoto library
 - Check your Yoto library in the app
-- Try logging out and back in
+
+### Cover image not appearing
+
+- Ensure image is named `countdown-to-f1-card.png` in `public/assets/card-images/`
+- Supported formats: PNG or JPG
+- Check console logs for upload confirmation
+
+### MYO audio upload fails
+
+- Ensure audio file is in a supported format (MP3, M4A, WAV)
+- File size should be under 100MB
+- Wait for transcoding to complete (usually 15-60 seconds)
+- Check that you're authenticated with Yoto
 
 ### Race time showing wrong timezone
 
