@@ -212,8 +212,13 @@ export async function POST(request) {
   } catch (error) {
     console.error("F1 card generation error:", error);
     
-    // Check if it's an auth error
-    if (error.message.includes('401') || error.message.includes('unauthorized')) {
+    // Check if it's an auth error by checking status code first
+    const isAuthError = 
+      error.status === 401 ||
+      (error.message && typeof error.message === 'string' && 
+       (error.message.includes('401') || error.message.toLowerCase().includes('unauthorized')));
+    
+    if (isAuthError) {
       return Response.json(
         {
           error: "Authentication failed. Please reconnect with Yoto.",
