@@ -37,7 +37,7 @@ function storeMyoCardId(cardId) {
 async function uploadCardCoverImage(accessToken) {
   try {
     const publicDir = join(process.cwd(), 'public', 'assets', 'card-images');
-    const possibleImages = ['countdown-to-f1-card.png', 'f1-card-cover.jpg', 'f1-card-cover.jpeg', 'f1-card-cover.png'];
+    const possibleImages = ['countdown-to-f1-card.png'];
     
     for (const imageName of possibleImages) {
       try {
