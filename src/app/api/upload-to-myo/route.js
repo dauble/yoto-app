@@ -52,6 +52,7 @@ async function uploadCardCoverImage(accessToken) {
         
         return mediaUrl;
       } catch (err) {
+        console.error(`Error processing cover image "${imageName}":`, err);
         continue;
       }
     }
