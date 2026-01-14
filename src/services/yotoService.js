@@ -6,6 +6,49 @@ const YOTO_API_BASE = "https://api.yotoplay.com";
 const DEFAULT_VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"; // ElevenLabs voice ID
 
 /**
+ * Upload a cover image to Yoto
+ * @param {Buffer|Blob} imageBuffer - Image file buffer or blob
+ * @param {string} accessToken - Yoto API access token
+ * @param {string} contentType - Content type of the image (e.g., 'image/jpeg', 'image/png')
+ * @returns {Promise<string>} Media URL of the uploaded image
+ */
+export async function uploadCoverImage(imageBuffer, accessToken, contentType = 'image/jpeg') {
+  try {
+    const url = new URL(`${YOTO_API_BASE}/media/coverImage/user/me/upload`);
+    url.searchParams.set('autoconvert', 'true');
+    url.searchParams.set('coverType', 'default');
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': contentType,
+      },
+      body: imageBuffer,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to upload cover image: ${errorText}`);
+    }
+
+    const result = await response.json();
+    
+    if (!result.coverImage || !result.coverImage.mediaUrl) {
+      throw new Error('Upload successful but no mediaUrl returned');
+    }
+
+    console.log('Cover image uploaded successfully:', result.coverImage.mediaId);
+    
+    return result.coverImage.mediaUrl;
+
+  } catch (error) {
+    console.error('Cover image upload error:', error);
+    throw error;
+  }
+}
+
+/**
  * Create a text-to-speech playlist on Yoto
  * @param {Object} params
  * @param {string} params.title - Title of the card
@@ -13,6 +56,7 @@ const DEFAULT_VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"; // ElevenLabs voice ID
  * @param {string} params.accessToken - Yoto API access token
  * @param {string} params.cardId - Optional: ID to update existing card
  * @param {string} params.voiceId - Optional: ElevenLabs voice ID
+ * @param {string} params.coverImageUrl - Optional: Media URL of uploaded cover image
  * @returns {Promise<Object>} Job object with jobId and status
  */
 export async function createTextToSpeechPlaylist({
@@ -20,7 +64,8 @@ export async function createTextToSpeechPlaylist({
   chapters,
   accessToken,
   cardId = null,
-  voiceId = DEFAULT_VOICE_ID
+  voiceId = DEFAULT_VOICE_ID,
+  coverImageUrl = null
 }) {
   try {
     // Build the playlist content structure
@@ -68,6 +113,13 @@ export async function createTextToSpeechPlaylist({
         description: `F1 Update - ${new Date().toLocaleDateString()}`,
       },
     };
+
+    // Add cover image if provided
+    if (coverImageUrl) {
+      content.metadata.cover = {
+        imageL: coverImageUrl,
+      };
+    }
 
     // If updating existing card, add cardId
     if (cardId) {
@@ -282,4 +334,215 @@ Get ready for an exciting race at ${raceData.circuit}!`,
   };
 
   return [chapter];
+}
+
+/**
+ * Request an upload URL for audio file
+ * @param {string} accessToken - Yoto API access token
+ * @returns {Promise<Object>} Upload URL and uploadId
+ */
+export async function requestAudioUploadUrl(accessToken) {
+  try {
+    const response = await fetch(
+      `${YOTO_API_BASE}/media/transcode/audio/uploadUrl`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to get upload URL: ${errorText}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.upload || !data.upload.uploadUrl) {
+      throw new Error('No upload URL in response');
+    }
+
+    console.log('Got upload URL, uploadId:', data.upload.uploadId);
+    
+    return {
+      uploadUrl: data.upload.uploadUrl,
+      uploadId: data.upload.uploadId,
+    };
+  } catch (error) {
+    console.error('Request upload URL error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Upload audio file to Yoto
+ * @param {string} uploadUrl - Pre-signed upload URL
+ * @param {Buffer} audioBuffer - Audio file buffer
+ * @param {string} contentType - Content type (e.g., 'audio/mpeg', 'audio/mp3')
+ * @returns {Promise<void>}
+ */
+export async function uploadAudioFile(uploadUrl, audioBuffer, contentType = 'audio/mpeg') {
+  try {
+    const response = await fetch(uploadUrl, {
+      method: 'PUT',
+      body: audioBuffer,
+      headers: {
+        'Content-Type': contentType,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to upload audio: ${errorText}`);
+    }
+
+    console.log('Audio uploaded successfully');
+  } catch (error) {
+    console.error('Upload audio error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Wait for audio transcoding to complete
+ * @param {string} uploadId - Upload ID from requestAudioUploadUrl
+ * @param {string} accessToken - Yoto API access token
+ * @param {number} maxAttempts - Maximum polling attempts (default: 60)
+ * @returns {Promise<Object>} Transcoded audio information
+ */
+export async function waitForTranscoding(uploadId, accessToken, maxAttempts = 60) {
+  try {
+    let attempts = 0;
+
+    while (attempts < maxAttempts) {
+      const response = await fetch(
+        `${YOTO_API_BASE}/media/upload/${uploadId}/transcoded?loudnorm=false`,
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json',
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.transcode && data.transcode.transcodedSha256) {
+          console.log('Transcoding complete:', data.transcode.transcodedSha256);
+          return data.transcode;
+        }
+      }
+
+      // Wait 1 second before next attempt
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      attempts++;
+      
+      if (attempts % 10 === 0) {
+        console.log(`Waiting for transcoding... attempt ${attempts}/${maxAttempts}`);
+      }
+    }
+
+    throw new Error('Transcoding timed out after ' + maxAttempts + ' attempts');
+  } catch (error) {
+    console.error('Transcoding wait error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Create a MYO card with uploaded audio
+ * @param {Object} params
+ * @param {string} params.title - Card title
+ * @param {Object} params.transcodedAudio - Transcoded audio object from waitForTranscoding
+ * @param {string} params.accessToken - Yoto API access token
+ * @param {string} params.coverImageUrl - Optional: Cover image URL
+ * @param {string} params.cardId - Optional: ID to update existing card
+ * @returns {Promise<Object>} Created card information
+ */
+export async function createAudioCard({
+  title,
+  transcodedAudio,
+  accessToken,
+  coverImageUrl = null,
+  cardId = null
+}) {
+  try {
+    const mediaInfo = transcodedAudio.transcodedInfo;
+    const chapterTitle = mediaInfo?.metadata?.title || title;
+
+    // Build chapters with transcoded audio
+    const chapters = [
+      {
+        key: '01',
+        title: chapterTitle,
+        overlayLabel: '1',
+        tracks: [
+          {
+            key: '01',
+            title: chapterTitle,
+            trackUrl: `yoto:#${transcodedAudio.transcodedSha256}`,
+            duration: mediaInfo?.duration,
+            fileSize: mediaInfo?.fileSize,
+            channels: mediaInfo?.channels,
+            format: mediaInfo?.format,
+            type: 'audio',
+            overlayLabel: '1',
+          },
+        ],
+      },
+    ];
+
+    // Build content object
+    const content = {
+      title: title,
+      content: { chapters },
+      metadata: {
+        media: {
+          duration: mediaInfo?.duration,
+          fileSize: mediaInfo?.fileSize,
+          readableFileSize: Math.round((mediaInfo?.fileSize / 1024 / 1024) * 10) / 10,
+        },
+      },
+    };
+
+    // Add cover image if provided
+    if (coverImageUrl) {
+      content.metadata.cover = {
+        imageL: coverImageUrl,
+      };
+    }
+
+    // Add cardId if updating existing card
+    if (cardId) {
+      content.cardId = cardId;
+    }
+
+    console.log('Creating MYO card:', content);
+
+    const response = await fetch(`${YOTO_API_BASE}/content`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(content),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to create card: ${errorText}`);
+    }
+
+    const result = await response.json();
+    console.log('MYO card created successfully:', result.cardId);
+    
+    return result;
+  } catch (error) {
+    console.error('Create audio card error:', error);
+    throw error;
+  }
 }
