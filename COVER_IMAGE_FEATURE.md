@@ -19,9 +19,7 @@ Place your cover image in the `public/assets/card-images/` directory with one of
 - `f1-card-cover.jpg` (recommended)
 - `f1-card-cover.jpeg`
 - `f1-card-cover.png`
-- `cover.jpg`
-- `cover.jpeg`
-- `cover.png`
+- `countdown-to-f1-card.png` (legacy filename, still supported)
 
 ### Step 2: Generate Your Card
 
