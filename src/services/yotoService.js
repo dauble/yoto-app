@@ -439,15 +439,23 @@ export async function waitForTranscoding(uploadId, accessToken, maxAttempts = 60
         }
       );
 
-      if (response.ok) {
-        const data = await response.json();
-        
-        if (data.transcode && data.transcode.transcodedSha256) {
-          console.log('Transcoding complete:', data.transcode.transcodedSha256);
-          return data.transcode;
+      if (!response.ok) {
+        let errorText = '';
+        try {
+          errorText = await response.text();
+        } catch (e) {
+          // Ignore errors while reading error body
         }
+        const baseMessage = `Failed to get transcoding status: ${response.status} ${response.statusText}`;
+        throw new Error(errorText ? `${baseMessage} - ${errorText}` : baseMessage);
       }
 
+      const data = await response.json();
+      
+      if (data.transcode && data.transcode.transcodedSha256) {
+        console.log('Transcoding complete:', data.transcode.transcodedSha256);
+        return data.transcode;
+      }
       // Wait 1 second before next attempt
       await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
@@ -515,9 +523,9 @@ export async function createAudioCard({
         media: {
           duration: mediaInfo?.duration,
           fileSize: mediaInfo?.fileSize,
-          readableFileSize: mediaInfo?.fileSize 
-            ? Math.round((mediaInfo.fileSize / 1024 / 1024) * 10) / 10 
-            : 0,
+          readableFileSize: typeof mediaInfo?.fileSize === 'number'
+            ? Math.round((mediaInfo.fileSize / 1024 / 1024) * 10) / 10
+            : undefined,
         },
       },
     };
