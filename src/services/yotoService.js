@@ -6,6 +6,17 @@ const YOTO_API_BASE = "https://api.yotoplay.com";
 const DEFAULT_VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"; // ElevenLabs voice ID
 
 /**
+ * Custom error class for Yoto API errors that includes HTTP status
+ */
+class YotoApiError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.name = 'YotoApiError';
+    this.status = status;
+  }
+}
+
+/**
  * Upload a cover image to Yoto
  * @param {Buffer|Blob} imageBuffer - Image file buffer or blob
  * @param {string} accessToken - Yoto API access token
@@ -29,7 +40,7 @@ export async function uploadCoverImage(imageBuffer, accessToken, contentType = '
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to upload cover image: ${errorText}`);
+      throw new YotoApiError(`Failed to upload cover image: ${errorText}`, response.status);
     }
 
     const result = await response.json();
@@ -143,7 +154,7 @@ export async function createTextToSpeechPlaylist({
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to create TTS playlist: ${errorText}`);
+      throw new YotoApiError(`Failed to create TTS playlist: ${errorText}`, response.status);
     }
 
     const { job } = await response.json();
@@ -186,7 +197,7 @@ export async function checkJobStatus(jobId, accessToken) {
     );
 
     if (!response.ok) {
-      throw new Error('Failed to check job status');
+      throw new YotoApiError('Failed to check job status', response.status);
     }
 
     const { job } = await response.json();
@@ -215,7 +226,7 @@ export async function getDevices(accessToken) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to fetch devices: ${errorText}`);
+      throw new YotoApiError(`Failed to fetch devices: ${errorText}`, response.status);
     }
 
     const data = await response.json();
@@ -254,7 +265,7 @@ export async function deployToDevice(deviceId, cardId, accessToken) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to deploy to device ${deviceId}: ${errorText}`);
+      throw new YotoApiError(`Failed to deploy to device ${deviceId}: ${errorText}`, response.status);
     }
 
     const result = await response.json();
@@ -356,7 +367,7 @@ export async function requestAudioUploadUrl(accessToken) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to get upload URL: ${errorText}`);
+      throw new YotoApiError(`Failed to get upload URL: ${errorText}`, response.status);
     }
 
     const data = await response.json();
@@ -396,7 +407,7 @@ export async function uploadAudioFile(uploadUrl, audioBuffer, contentType = 'aud
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to upload audio: ${errorText}`);
+      throw new YotoApiError(`Failed to upload audio: ${errorText}`, response.status);
     }
 
     console.log('Audio uploaded successfully');
@@ -534,7 +545,7 @@ export async function createAudioCard({
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to create card: ${errorText}`);
+      throw new YotoApiError(`Failed to create card: ${errorText}`, response.status);
     }
 
     const result = await response.json();
