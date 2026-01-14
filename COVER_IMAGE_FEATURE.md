@@ -103,6 +103,6 @@ https://yoto.dev/myo/uploading-cover-images/
 To test the feature:
 
 1. Download an F1 logo or race image
-2. Save it as `public/assets/card-images/f1-card-cover.jpg`
+2. Save it as `public/assets/card-images/countdown-to-f1-card.png`
 3. Run the app and generate a card
 4. Check your Yoto library - the card should have your custom image!
