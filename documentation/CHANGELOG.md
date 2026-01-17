@@ -5,35 +5,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.2.0] - 2026-01-16
 
 ### Added
 
-- **Enhanced Race Details** - Cards now include additional contextual information:
-  - Official event name (e.g., "Formula 1 MSC Cruises Japanese Grand Prix 2024")
-  - Country name for each race
-  - Circuit type (Permanent, Temporary - Street, or Temporary - Road)
-  - Current weather conditions:
-    - Air and track temperatures
-    - Humidity percentage
-    - Wind speed
-    - Rainfall status (wet/dry track)
-- `getMeetingDetails()` function to fetch circuit and location information from OpenF1 API
-- `getSessionWeather()` function to fetch live weather data from OpenF1 API
-- `getUpcomingSessions()` function re-added to fetch all sessions for a race weekend
-- Comprehensive documentation in `documentation/FEATURES.md`
+- **Session-Based Chapters** - Multiple chapters now created for each F1 race weekend
+  - Chapter 1: Race Weekend Overview with overall information
+  - Chapters 2+: Individual chapters for each session (Practice 1-3, Qualifying, Sprint, Race)
+  - Each chapter includes session-specific descriptions and context
+- **Custom Icon Support** - Race car icon (🏎️) now displays on Yoto players
+  - Automatically uploads `countdown-to-f1-icon.png` from `public/assets/card-images/`
+  - Icon appears on all chapters and tracks for consistent branding
+- **Enhanced Timezone Detection** - Improved IP-based timezone conversion
+  - Detailed logging shows detected timezone for debugging
+  - Better fallback handling for local/private IPs
+  - Converts ALL session times to user's local timezone
+- **OpenF1 Sessions API Integration** - Fetches all upcoming sessions for a race weekend
+  - Automatically sorts sessions chronologically
+  - Filters for upcoming events only
+  - Includes Practice, Qualifying, Sprint, and Race sessions
+- **Comprehensive Session Descriptions** - Custom text for each session type:
+  - Practice: Setup work and data gathering details
+  - Qualifying: Knockout format explanation (Q1, Q2, Q3)
+  - Sprint: Race format and points information
+  - Race: Full Grand Prix strategy notes
+- **Enhanced UI Display** - "View Generated Content" now shows all chapters and tracks
+  - Chapter count indicator in summary
+  - Expandable view for each chapter's content
+  - Visual organization with track-level detail
+
+### Fixed
+
+- **Date Conversion Bug** - Race dates now correctly reflect user's timezone
+  - Previously showed wrong day when timezone crossed midnight
+  - Now uses proper calendar day conversion
+- **Mock Data Timezone** - Mock fallback data now properly converts to user timezone
+  - Removed hardcoded date/time values
+  - Consistent behavior between real API data and fallback
 
 ### Changed
 
-- `buildF1Chapters()` now accepts optional `meetingDetails` and `weather` parameters
-- Card generation process includes two additional API calls (gracefully degraded if they fail)
-- Chapter text is more descriptive and educational with location and weather context
+- **Chapter Structure** - Moved from single chapter to multi-chapter format
+  - Better organization of race weekend information
+  - Each session gets dedicated attention and context
+  - More engaging content for F1 fans
+- **Timezone Logging** - Added detailed console output for timezone operations
+  - Shows IP detection results
+  - Displays original ISO timestamps
+  - Confirms converted date/time values
 
-### Improved
+### Documentation
 
-- More engaging and informative TTS content for children
-- Better understanding of race location and conditions
-- Educational value with country and circuit type information
+- **SESSIONS_CHAPTERS_FEATURE.md** - Complete guide to session-based chapters
+  - Technical implementation details
+  - Timezone detection flow diagrams
+  - Session type descriptions
+  - Debugging information
+- **README.md** - Updated with new features and timezone explanation
+  - Multi-chapter system details
+  - IP-based timezone detection process
+  - Troubleshooting for timezone issues
+- **QUICKSTART.md** - Added information about chapter structure
+  - What users can expect when generating cards
+  - Custom icon details
 
 ## [1.1.0] - 2026-01-11
 
@@ -88,5 +122,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Release Links
 
-- [v1.1.0](https://github.com/yourusername/yoto-f1-card/releases/tag/v1.1.0) - OAuth fixes and auto-deployment
-- [v1.0.0](https://github.com/yourusername/yoto-f1-card/releases/tag/v1.0.0) - Initial release
+- [v1.1.0](https://github.com/dauble/yoto-app/releases/tag/v1.1.0) - OAuth fixes and auto-deployment
+- [v1.0.0](https://github.com/dauble/yoto-app/releases/tag/v1.0.0) - Initial release

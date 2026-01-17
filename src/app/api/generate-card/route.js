@@ -1,5 +1,5 @@
 // API Route to generate a Formula 1 card
-import { getNextRace, getDriverStandings, getTeamStandings, generateF1Script, getMeetingDetails, getSessionWeather } from "@/services/f1Service";
+import { getNextRace, getUpcomingSessions, getDriverStandings, getTeamStandings, generateF1Script } from "@/services/f1Service";
 import { createTextToSpeechPlaylist, buildF1Chapters, deployToAllDevices } from "@/services/yotoService";
 import { uploadCardCoverImage, uploadCardIcon } from "@/utils/imageUtils";
 import Configstore from "configstore";
@@ -124,48 +124,45 @@ export async function POST(request) {
       console.warn('Cannot convert to user timezone without ISO timestamp');
     }
 
+    // Step 4a: Fetch all upcoming sessions for this race weekend
+    let sessions = [];
+    if (raceData.meetingKey) {
+      const rawSessions = await getUpcomingSessions(raceData.meetingKey);
+      
+      // Convert session times to user's timezone
+      sessions = rawSessions.map(session => {
+        const sessionDate = new Date(session.dateStart);
+        return {
+          ...session,
+          date: sessionDate.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            timeZone: userTimezone
+          }),
+          time: sessionDate.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZoneName: 'short',
+            timeZone: userTimezone
+          })
+        };
+      });
+      
+      console.log(`Found ${sessions.length} upcoming sessions for this race weekend`);
+    }
+
     // Step 5: Generate script for text-to-speech
     const script = generateF1Script(raceData, driverStandings, teamStandings);
 
-    // Step 6: Fetch additional race details (meeting info and weather)
-    // Space out requests to respect OpenF1 rate limit
-    let meetingDetails = null;
-    let weather = null;
-    
-    console.log('Race data keys:', { meetingKey: raceData.meetingKey, sessionKey: raceData.sessionKey });
-    
-    if (raceData.meetingKey) {
-      try {
-        console.log(`Fetching meeting details for meetingKey: ${raceData.meetingKey}`);
-        meetingDetails = await getMeetingDetails(raceData.meetingKey);
-        console.log('Meeting details fetched:', meetingDetails);
-        await delay(400); // Rate limit protection
-      } catch (error) {
-        console.error('Failed to fetch meeting details:', error.message, error);
-      }
-    } else {
-      console.warn('No meetingKey found in race data, skipping meeting details');
-    }
-    
-    if (raceData.sessionKey) {
-      try {
-        console.log(`Fetching weather for sessionKey: ${raceData.sessionKey}`);
-        weather = await getSessionWeather(raceData.sessionKey);
-        console.log('Weather data fetched:', weather);
-      } catch (error) {
-        console.error('Failed to fetch weather data:', error.message, error);
-      }
-    } else {
-      console.warn('No sessionKey found in race data, skipping weather data');
-    }
-
-    // Step 7: Upload custom icon if available (16x16 for display on Yoto device)
+    // Step 6: Upload custom icon if available (16x16 for display on Yoto device)
     const iconMediaId = await uploadCardIcon(accessToken);
 
-    // Step 8: Build chapters for Yoto playlist with custom icon and enhanced details
-    const chapters = buildF1Chapters(raceData, iconMediaId, meetingDetails, weather);
+    // Step 7: Build chapters for Yoto playlist with custom icon and sessions
+    const chapters = buildF1Chapters(raceData, sessions, iconMediaId);
 
-    // Step 9: Check if we should update existing card
+    // Step 8: Check if we should update existing card
     const existingCardId = shouldUpdate ? getStoredCardId() : null;
     
     // Step 10: Upload cover image if available
@@ -211,12 +208,12 @@ export async function POST(request) {
       drivers: driverStandings,
       teams: teamStandings,
       script,
-      chapters, // Include the chapters array so UI can display all chapters
-      yoto: yotoResult,
+      yoto: {
+        ...yotoResult,
+        chapters, // Include chapters data so UI can display all content
+      },
       deviceDeployment,
       isUpdate: !!existingCardId,
-      meetingDetails, // Include for debugging
-      weather, // Include for debugging
       message: existingCardId 
         ? "Formula 1 card updated successfully! Changes will appear in your Yoto library shortly."
         : "Formula 1 card created successfully! Check your Yoto library.",
