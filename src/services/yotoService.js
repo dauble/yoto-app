@@ -1,6 +1,8 @@
 // Yoto API Service for creating MYO cards
 // API Documentation: https://yoto.dev/myo/labs-tts/
 
+import { getCircuitTypeDescription } from "@/utils/circuitUtils";
+
 const YOTO_LABS_API_BASE = "https://labs.api.yotoplay.com";
 const YOTO_API_BASE = "https://api.yotoplay.com";
 const DEFAULT_VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"; // ElevenLabs voice ID
@@ -322,47 +324,39 @@ export async function deployToAllDevices(cardId, accessToken) {
 
 /**
  * Convert F1 race data into Yoto chapter format with multiple chapters for each session
- * @param {Object} raceData - Race information
+ * @param {Object} raceData - Race information (includes country, circuit type, official name)
  * @param {Array} sessions - Array of session objects (Practice, Qualifying, Sprint, Race, etc.)
  * @param {string|null} iconMediaId - Optional custom icon media ID (from uploadCardIcon)
- * @param {Object|null} meetingDetails - Optional meeting details (country, circuit type, official name)
  * @param {Object|null} weather - Optional weather data (temperature, humidity, wind, rainfall)
+ * @param {string|null} countryFlagIconId - Optional country flag icon media ID for first chapter
  * @returns {Array} Array of chapter objects
  */
-export function buildF1Chapters(raceData, sessions = [], iconMediaId = null, meetingDetails = null, weather = null) {
+export function buildF1Chapters(raceData, sessions = [], iconMediaId = null, weather = null, countryFlagIconId = null) {
   const chapters = [];
   
-  console.log(`Building F1 chapters with ${sessions.length} sessions, iconMediaId: ${iconMediaId || 'none'}, meeting details: ${meetingDetails ? 'yes' : 'no'}, weather: ${weather ? 'yes' : 'no'}`);
+  console.log(`Building F1 chapters with ${sessions.length} sessions, iconMediaId: ${iconMediaId || 'none'}, weather: ${weather ? 'yes' : 'no'}, countryFlagIconId: ${countryFlagIconId || 'none'}`);
   
   // Build enhanced overview text with meeting and weather details
   let overviewText = `Hello Formula 1 fans! Let me tell you about the upcoming ${raceData.name} in the ${raceData.year} season.`;
 
-  // Add meeting details if available
-  if (meetingDetails) {
-    // Use meetingName for the circuit name (better than circuitShortName)
-    const circuitName = meetingDetails.meetingName || raceData.circuit;
-    const location = meetingDetails.countryName || raceData.location;
-    
-    overviewText += `\n\nThis race weekend takes place in ${location} at ${circuitName}.`;
-    
-    if (meetingDetails.meetingOfficialName && meetingDetails.meetingOfficialName !== raceData.name) {
-      overviewText += ` The official name of this event is the ${meetingDetails.meetingOfficialName}.`;
-    }
-    
-    if (meetingDetails.circuitType) {
-      const circuitTypeDescription = meetingDetails.circuitType === "Permanent" 
-        ? "a permanent racing circuit"
-        : meetingDetails.circuitType === "Temporary - Street"
-        ? "a temporary street circuit"
-        : meetingDetails.circuitType === "Temporary - Road"
-        ? "a temporary road circuit"
-        : "a racing circuit";
-      
-      overviewText += ` ${circuitName} is ${circuitTypeDescription}.`;
-    }
+  // Add race location and circuit details
+  const location = raceData.location && raceData.country 
+    ? `${raceData.location}, ${raceData.country}`
+    : raceData.location || raceData.country || "an exciting location";
+  
+  overviewText += `\n\nThis race weekend takes place in ${location}.`;
+  
+  // Add circuit information with type
+  const circuitTypeDescription = getCircuitTypeDescription(raceData.circuitType);
+  if (circuitTypeDescription) {
+    overviewText += ` The drivers will be racing at the ${raceData.circuit} circuit, which is ${circuitTypeDescription}.`;
   } else {
-    // Fallback if no meeting details
-    overviewText += `\n\nThis race weekend takes place in ${raceData.location} at ${raceData.circuit}.`;
+    overviewText += ` The drivers will be racing at the ${raceData.circuit} circuit.`;
+  }
+  
+  // Add official name if it's more detailed
+  if (raceData.officialName && raceData.officialName !== raceData.name) {
+    overviewText += ` The official name of this event is the ${raceData.officialName}.`;
   }
 
   overviewText += `\n\nThe race is scheduled for ${raceData.date} at ${raceData.time}.`;
@@ -404,14 +398,16 @@ export function buildF1Chapters(raceData, sessions = [], iconMediaId = null, mee
   }
   
   // Chapter 1: Overall race weekend information with enhanced details
+  // Use country flag icon for first chapter if available, otherwise use generic F1 icon
+  const firstChapterIcon = countryFlagIconId || iconMediaId;
   chapters.push({
     title: "Race Weekend Overview",
-    icon: iconMediaId ? `yoto:#${iconMediaId}` : null,
+    icon: firstChapterIcon ? `yoto:#${firstChapterIcon}` : null,
     tracks: [
       {
         title: raceData.name,
         text: overviewText,
-        icon: iconMediaId ? `yoto:#${iconMediaId}` : null,
+        icon: firstChapterIcon ? `yoto:#${firstChapterIcon}` : null,
       }
     ]
   });
