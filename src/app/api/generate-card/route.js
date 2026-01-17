@@ -1,5 +1,5 @@
 // API Route to generate a Formula 1 card
-import { getNextRace, getUpcomingSessions, getDriverStandings, getTeamStandings, generateF1Script } from "@/services/f1Service";
+import { getNextRace, getUpcomingSessions, getDriverStandings, getTeamStandings, generateF1Script, getMeetingDetails, getSessionWeather } from "@/services/f1Service";
 import { createTextToSpeechPlaylist, buildF1Chapters, deployToAllDevices } from "@/services/yotoService";
 import { uploadCardCoverImage, uploadCardIcon } from "@/utils/imageUtils";
 import Configstore from "configstore";
@@ -156,13 +156,41 @@ export async function POST(request) {
     // Step 5: Generate script for text-to-speech
     const script = generateF1Script(raceData, driverStandings, teamStandings);
 
-    // Step 6: Upload custom icon if available (16x16 for display on Yoto device)
+    // Step 6: Fetch additional race details (meeting info and weather)
+    // Continue respecting OpenF1 rate limit
+    let meetingDetails = null;
+    let weather = null;
+    
+    if (raceData.meetingKey) {
+      try {
+        console.log(`Fetching meeting details for meetingKey: ${raceData.meetingKey}`);
+        meetingDetails = await getMeetingDetails(raceData.meetingKey);
+        console.log('Meeting details fetched:', meetingDetails);
+        await delay(400); // Rate limit protection
+      } catch (error) {
+        console.error('Failed to fetch meeting details:', error.message);
+      }
+    }
+    
+    // Get weather from the first session if available
+    if (sessions.length > 0 && sessions[0].sessionKey) {
+      try {
+        console.log(`Fetching weather for sessionKey: ${sessions[0].sessionKey}`);
+        weather = await getSessionWeather(sessions[0].sessionKey);
+        console.log('Weather data fetched:', weather);
+        await delay(400); // Rate limit protection
+      } catch (error) {
+        console.error('Failed to fetch weather data:', error.message);
+      }
+    }
+
+    // Step 7: Upload custom icon if available (16x16 for display on Yoto device)
     const iconMediaId = await uploadCardIcon(accessToken);
 
-    // Step 7: Build chapters for Yoto playlist with custom icon and sessions
-    const chapters = buildF1Chapters(raceData, sessions, iconMediaId);
+    // Step 8: Build chapters for Yoto playlist with custom icon, sessions, and enhanced details
+    const chapters = buildF1Chapters(raceData, sessions, iconMediaId, meetingDetails, weather);
 
-    // Step 8: Check if we should update existing card
+    // Step 9: Check if we should update existing card
     const existingCardId = shouldUpdate ? getStoredCardId() : null;
     
     // Step 10: Upload cover image if available
@@ -214,6 +242,8 @@ export async function POST(request) {
       },
       deviceDeployment,
       isUpdate: !!existingCardId,
+      meetingDetails, // Include for debugging
+      weather, // Include for debugging
       message: existingCardId 
         ? "Formula 1 card updated successfully! Changes will appear in your Yoto library shortly."
         : "Formula 1 card created successfully! Check your Yoto library.",
