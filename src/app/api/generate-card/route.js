@@ -1,7 +1,7 @@
 // API Route to generate a Formula 1 card
 import { getNextRace, getDriverStandings, getTeamStandings, generateF1Script } from "@/services/f1Service";
 import { createTextToSpeechPlaylist, buildF1Chapters, deployToAllDevices } from "@/services/yotoService";
-import { uploadCardCoverImage } from "@/utils/imageUtils";
+import { uploadCardCoverImage, uploadCardIcon } from "@/utils/imageUtils";
 import Configstore from "configstore";
 
 const config = new Configstore("yoto-f1-card-tokens");
@@ -121,16 +121,19 @@ export async function POST(request) {
     // Step 5: Generate script for text-to-speech
     const script = generateF1Script(raceData, driverStandings, teamStandings);
 
-    // Step 6: Build chapters for Yoto playlist
-    const chapters = buildF1Chapters(raceData);
+    // Step 6: Upload custom icon if available (16x16 for display on Yoto device)
+    const iconMediaId = await uploadCardIcon(accessToken);
 
-    // Step 7: Check if we should update existing card
+    // Step 7: Build chapters for Yoto playlist with custom icon
+    const chapters = buildF1Chapters(raceData, iconMediaId);
+
+    // Step 8: Check if we should update existing card
     const existingCardId = shouldUpdate ? getStoredCardId() : null;
     
-    // Step 8: Upload cover image if available
+    // Step 9: Upload cover image if available
     const coverImageUrl = await uploadCardCoverImage(accessToken);
     
-    // Step 9: Create or update the Yoto card with TTS
+    // Step 10: Create or update the Yoto card with TTS
     const title = `F1: Next Race`;
     const yotoResult = await createTextToSpeechPlaylist({
       title,
@@ -145,7 +148,7 @@ export async function POST(request) {
       storeCardId(yotoResult.cardId);
     }
 
-    // Step 10: Deploy the playlist to all devices
+    // Step 11: Deploy the playlist to all devices
     let deviceDeployment = null;
     if (yotoResult.cardId) {
       try {
@@ -163,7 +166,7 @@ export async function POST(request) {
       }
     }
 
-    // Step 11: Return success with job information
+    // Step 12: Return success with job information
     return Response.json({
       success: true,
       race: raceData,

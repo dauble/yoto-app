@@ -322,13 +322,14 @@ export async function deployToAllDevices(cardId, accessToken) {
 /**
  * Convert F1 race data into Yoto chapter format with single track
  * @param {Object} raceData - Race information
+ * @param {string|null} iconMediaId - Optional custom icon media ID (from uploadCardIcon)
  * @returns {Array} Array of chapter objects
  */
-export function buildF1Chapters(raceData) {
+export function buildF1Chapters(raceData, iconMediaId = null) {
   // Single chapter with the Next Race information
   const chapter = {
     title: "Next F1 Race",
-    icon: null, // Can add custom icon later
+    icon: iconMediaId ? `yoto:#${iconMediaId}` : null, // Use custom icon if provided
     tracks: [
       {
         title: raceData.name,
@@ -339,7 +340,7 @@ The next race is the ${raceData.name}, taking place in ${raceData.location}.
 The race will be held on ${raceData.date}, at ${raceData.time}.
 
 Get ready for an exciting race at ${raceData.circuit}!`,
-        icon: null, // Can add custom icon later
+        icon: iconMediaId ? `yoto:#${iconMediaId}` : null, // Use custom icon if provided
       }
     ]
   };
