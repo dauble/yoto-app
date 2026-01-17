@@ -4,6 +4,9 @@ import { createTextToSpeechPlaylist, buildF1Chapters, deployToAllDevices } from 
 import { uploadCardCoverImage, uploadCardIcon } from "@/utils/imageUtils";
 import Configstore from "configstore";
 
+// Delay utility to respect OpenF1 API rate limit (3 requests/second)
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 const config = new Configstore("yoto-f1-card-tokens");
 
 /**
@@ -83,12 +86,15 @@ export async function POST(request) {
     // Step 2: Get user's timezone
     const userTimezone = await getUserTimezone(request);
     
-    // Step 3: Fetch F1 data from API
-    const [raceData, driverStandings, teamStandings] = await Promise.all([
-      getNextRace(),
-      getDriverStandings(),
-      getTeamStandings()
-    ]);
+    // Step 3: Fetch F1 data from API (sequential to respect 3 req/sec rate limit)
+    const raceData = await getNextRace();
+    await delay(400); // Wait 400ms between requests (allows 2.5 req/sec safely)
+    
+    const driverStandings = await getDriverStandings();
+    await delay(400);
+    
+    const teamStandings = await getTeamStandings();
+    await delay(400);
 
     // Step 4: Convert race time to user's timezone
     if (raceData.dateStart) {
@@ -122,29 +128,35 @@ export async function POST(request) {
     const script = generateF1Script(raceData, driverStandings, teamStandings);
 
     // Step 6: Fetch additional race details (meeting info and weather)
+    // Space out requests to respect OpenF1 rate limit
     let meetingDetails = null;
     let weather = null;
     
+    console.log('Race data keys:', { meetingKey: raceData.meetingKey, sessionKey: raceData.sessionKey });
+    
     if (raceData.meetingKey) {
       try {
+        console.log(`Fetching meeting details for meetingKey: ${raceData.meetingKey}`);
         meetingDetails = await getMeetingDetails(raceData.meetingKey);
-        if (process.env.NODE_ENV !== "production") {
-          console.log(`Meeting details:`, meetingDetails);
-        }
+        console.log('Meeting details fetched:', meetingDetails);
+        await delay(400); // Rate limit protection
       } catch (error) {
-        console.warn('Failed to fetch meeting details:', error.message);
+        console.error('Failed to fetch meeting details:', error.message, error);
       }
+    } else {
+      console.warn('No meetingKey found in race data, skipping meeting details');
     }
     
     if (raceData.sessionKey) {
       try {
+        console.log(`Fetching weather for sessionKey: ${raceData.sessionKey}`);
         weather = await getSessionWeather(raceData.sessionKey);
-        if (process.env.NODE_ENV !== "production") {
-          console.log(`Weather data:`, weather);
-        }
+        console.log('Weather data fetched:', weather);
       } catch (error) {
-        console.warn('Failed to fetch weather data:', error.message);
+        console.error('Failed to fetch weather data:', error.message, error);
       }
+    } else {
+      console.warn('No sessionKey found in race data, skipping weather data');
     }
 
     // Step 7: Upload custom icon if available (16x16 for display on Yoto device)
@@ -199,9 +211,12 @@ export async function POST(request) {
       drivers: driverStandings,
       teams: teamStandings,
       script,
+      chapters, // Include the chapters array so UI can display all chapters
       yoto: yotoResult,
       deviceDeployment,
       isUpdate: !!existingCardId,
+      meetingDetails, // Include for debugging
+      weather, // Include for debugging
       message: existingCardId 
         ? "Formula 1 card updated successfully! Changes will appear in your Yoto library shortly."
         : "Formula 1 card created successfully! Check your Yoto library.",

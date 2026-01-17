@@ -283,13 +283,48 @@ export default function Home() {
                 </div>
 
                 <details className={styles.scriptPreview}>
-                  <summary>📝 View Generated Script</summary>
-                  <div className={styles.chapters}>
-                    <div className={styles.chapter}>
-                      <h4>Chapter 1: Next Race</h4>
-                      <pre>{result.script.chapter1}</pre>
+                  <summary>📝 View Generated Content</summary>
+                  
+                  {result.chapters && result.chapters.length > 0 && (
+                    <div className={styles.chapters}>
+                      <h4>📚 Chapters</h4>
+                      {result.chapters.map((chapter, chapterIdx) => (
+                        <div key={chapterIdx} className={styles.chapter}>
+                          <h5>{chapter.title}</h5>
+                          {chapter.tracks && chapter.tracks.map((track, trackIdx) => (
+                            <div key={trackIdx} className={styles.track}>
+                              <strong>{track.title}</strong>
+                              <pre>{track.text}</pre>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
                     </div>
-                  </div>
+                  )}
+                  
+                  {result.script && (
+                    <div className={styles.chapters}>
+                      <h4>🎙️ Original Script (Legacy)</h4>
+                      <div className={styles.chapter}>
+                        <h5>Chapter 1: Next Race</h5>
+                        <pre>{result.script.chapter1}</pre>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {result.meetingDetails && (
+                    <div className={styles.debugInfo}>
+                      <h5>🏟️ Meeting Details (Debug)</h5>
+                      <pre>{JSON.stringify(result.meetingDetails, null, 2)}</pre>
+                    </div>
+                  )}
+                  
+                  {result.weather && (
+                    <div className={styles.debugInfo}>
+                      <h5>🌤️ Weather Data (Debug)</h5>
+                      <pre>{JSON.stringify(result.weather, null, 2)}</pre>
+                    </div>
+                  )}
                 </details>
               </div>
             )}

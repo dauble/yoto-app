@@ -522,12 +522,55 @@
   padding: 1rem;
   border-radius: 8px;
   border-left: 4px solid #e10600;
+  margin-bottom: 1rem;
 }
 
-.chapter h4 {
+.chapter h4,
+.chapter h5 {
   color: #e10600;
   margin-top: 0;
   margin-bottom: 0.5rem;
+}
+
+.track {
+  margin: 1rem 0;
+  padding: 0.5rem 0;
+  border-top: 1px solid #f0f0f0;
+}
+
+.track:first-child {
+  border-top: none;
+}
+
+.track strong {
+  color: #333;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.debugInfo {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  border: 1px solid #e9ecef;
+}
+
+.debugInfo h5 {
+  color: #495057;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.debugInfo pre {
+  margin: 0;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .scriptPreview {

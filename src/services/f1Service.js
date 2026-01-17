@@ -365,18 +365,22 @@ export async function getUpcomingSessions(meetingKey) {
  */
 export async function getMeetingDetails(meetingKey) {
   try {
-    const response = await fetch(
-      `${F1_API_BASE}/meetings?meeting_key=${meetingKey}`,
-      { signal: AbortSignal.timeout(5000) }
-    );
+    const url = `${F1_API_BASE}/meetings?meeting_key=${meetingKey}`;
+    console.log('Fetching meeting details from:', url);
+    
+    const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch meeting details");
+      const errorText = await response.text();
+      console.error(`Meeting details API error: ${response.status} ${response.statusText}`, errorText);
+      throw new Error(`Failed to fetch meeting details: ${response.status}`);
     }
 
     const meetings = await response.json();
+    console.log('Meeting details response:', meetings);
     
     if (!meetings || meetings.length === 0) {
+      console.warn('No meeting details found for meeting key:', meetingKey);
       return null;
     }
     
@@ -395,7 +399,7 @@ export async function getMeetingDetails(meetingKey) {
       gmtOffset: meeting.gmt_offset,
     };
   } catch (error) {
-    console.log("Error fetching meeting details:", error.message);
+    console.error("Error fetching meeting details:", error.message, error);
     return null;
   }
 }
@@ -408,18 +412,22 @@ export async function getMeetingDetails(meetingKey) {
 export async function getSessionWeather(sessionKey) {
   try {
     // Get the most recent weather reading for this session
-    const response = await fetch(
-      `${F1_API_BASE}/weather?session_key=${sessionKey}`,
-      { signal: AbortSignal.timeout(5000) }
-    );
+    const url = `${F1_API_BASE}/weather?session_key=${sessionKey}`;
+    console.log('Fetching weather from:', url);
+    
+    const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch weather data");
+      const errorText = await response.text();
+      console.error(`Weather API error: ${response.status} ${response.statusText}`, errorText);
+      throw new Error(`Failed to fetch weather data: ${response.status}`);
     }
 
     const weatherData = await response.json();
+    console.log('Weather data response:', weatherData);
     
     if (!weatherData || weatherData.length === 0) {
+      console.warn('No weather data found for session key:', sessionKey);
       return null;
     }
     
@@ -437,7 +445,7 @@ export async function getSessionWeather(sessionKey) {
       date: latestWeather.date,
     };
   } catch (error) {
-    console.log("Error fetching weather data:", error.message);
+    console.error("Error fetching weather data:", error.message, error);
     return null;
   }
 }

@@ -107,7 +107,7 @@ Get ready for an exciting race at Suzuka Circuit!
 
 ## Documentation Updates
 
-1. **ENHANCED_RACE_DETAILS_FEATURE.md** - New comprehensive feature documentation
+1. **FEATURES.md** - Added enhanced race details documentation to combined features guide
 2. **CHANGELOG.md** - Added [Unreleased] section with all changes
 3. **README.md** - Updated features list and added documentation section
 
@@ -143,9 +143,9 @@ These were mentioned in the issue but not yet implemented:
 - `src/services/f1Service.js` (+155 lines)
 - `src/services/yotoService.js` (+45 lines, -15 lines)
 - `src/app/api/generate-card/route.js` (+25 lines)
-- `CHANGELOG.md` (+25 lines)
+- `documentation/CHANGELOG.md` (+25 lines)
 - `README.md` (+12 lines)
-- `ENHANCED_RACE_DETAILS_FEATURE.md` (new file, +320 lines)
+- `documentation/FEATURES.md` (enhanced race details section, +320 lines)
 
 ## Deployment Notes
 

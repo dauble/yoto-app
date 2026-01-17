@@ -177,17 +177,15 @@ On subsequent generations:
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+Contributions are welcome! Please read [documentation/CONTRIBUTING.md](documentation/CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
-## � Documentation
+## 📚 Documentation
 
-- [CHANGELOG.md](CHANGELOG.md) - Version history and release notes
-- [QUICKSTART.md](QUICKSTART.md) - 5-minute setup guide
-- [ENHANCED_RACE_DETAILS_FEATURE.md](ENHANCED_RACE_DETAILS_FEATURE.md) - Enhanced race information feature
-- [COVER_IMAGE_FEATURE.md](COVER_IMAGE_FEATURE.md) - Custom cover image functionality
-- [JOB_STATUS_FEATURE.md](JOB_STATUS_FEATURE.md) - Real-time TTS job status
-- [MYO_UPLOAD_FEATURE.md](MYO_UPLOAD_FEATURE.md) - Audio file upload guide
-- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
+- [documentation/CHANGELOG.md](documentation/CHANGELOG.md) - Version history and release notes
+- [documentation/QUICKSTART.md](documentation/QUICKSTART.md) - 5-minute setup guide
+- [documentation/FEATURES.md](documentation/FEATURES.md) - All feature documentation (cover images, job status, MYO upload, enhanced race details)
+- [documentation/CONTRIBUTING.md](documentation/CONTRIBUTING.md) - Contribution guidelines
+- [documentation/RELEASE_NOTES.md](documentation/RELEASE_NOTES.md) - Release information
 
 ## �🐛 Troubleshooting
 

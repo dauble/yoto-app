@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `getMeetingDetails()` function to fetch circuit and location information from OpenF1 API
 - `getSessionWeather()` function to fetch live weather data from OpenF1 API
 - `getUpcomingSessions()` function re-added to fetch all sessions for a race weekend
-- Comprehensive documentation in `ENHANCED_RACE_DETAILS_FEATURE.md`
+- Comprehensive documentation in `documentation/FEATURES.md`
 
 ### Changed
 
