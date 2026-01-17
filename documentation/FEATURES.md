@@ -598,7 +598,7 @@ Re-added function to fetch all sessions for a race weekend.
 The `buildF1Chapters()` function in `yotoService.js` now accepts additional parameters:
 
 ```javascript
-buildF1Chapters(raceData, iconMediaId, meetingDetails, weather);
+buildF1Chapters(raceData, sessions, iconMediaId, meetingDetails, weather);
 ```
 
 The chapter text now includes:
