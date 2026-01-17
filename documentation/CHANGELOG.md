@@ -5,6 +5,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-01-17
+
+### Added
+
+- **Two-Step Card Generation (Development Mode)** - Separated card generation from Yoto deployment
+  - Step 1: Generate card data and review content
+  - Step 2: Manual "Send to Yoto" button to deploy
+  - Allows content review before sending to Yoto API
+  - Prominent development mode notice in UI
+  - Will be streamlined in future production releases
+- **Meetings API Integration** - Switched from Sessions to Meetings endpoint
+  - Better race naming (e.g., "Australian Grand Prix" vs. "Melbourne")
+  - More comprehensive event information
+  - Official race names and locations
+  - Meeting metadata including country and circuit details
+- **Circuit Type Information** - Enhanced race descriptions with track type
+  - Identifies permanent racing circuits
+  - Identifies temporary street circuits
+  - Identifies temporary road courses
+  - Included in TTS narration for better context
+- **Country Flag Icons** - Dynamic country flag display on first chapter
+  - Downloads flag from OpenF1 Meetings API
+  - Uploads as 16x16 icon to Yoto
+  - First chapter displays country flag instead of generic F1 icon
+  - Visual indication of race location
+- **Enhanced Race Location Display** - Improved UI and TTS content
+  - Shows city and country separately (e.g., "Melbourne, Australia")
+  - Circuit type mentioned in narration
+  - Official event names included
+  - Better geographical context
+
+### Changed
+
+- **Data Source** - Migrated from Sessions API to Meetings API for primary race data
+  - More accurate and comprehensive race information
+  - Better naming conventions
+  - Richer metadata (circuit images, official names, etc.)
+- **First Chapter Content** - Enhanced "Race Weekend Overview" narration
+  - Now includes circuit type description
+  - Better location information (city and country)
+  - More conversational and informative
+  - Official event name when available
+- **UI Labels** - Updated terminology to match Meetings data
+  - "Next Session" → "Next Race" (when displaying meeting info)
+  - "Name" field shows meeting name (e.g., "Singapore Grand Prix")
+  - Clearer distinction between location and country
+
+### Fixed
+
+- Race information now displays proper Grand Prix names instead of generic location names
+- First chapter icon is now specific to the race country
+- Improved data consistency across UI and TTS content
+
+### Developer Notes
+
+- New `/api/send-to-yoto` endpoint for second step of card generation
+- `uploadCountryFlagIcon()` utility function in imageUtils.js
+- `buildF1Chapters()` now accepts `countryFlagIconId` parameter
+- `formatRaceData()` updated to handle Meetings API response structure
+- Added `countryFlag` field to race data model
+
 ## [1.2.0] - 2026-01-16
 
 ### Added

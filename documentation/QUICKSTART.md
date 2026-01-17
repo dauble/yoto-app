@@ -64,21 +64,27 @@ You should see:
 ○ Local:   http://localhost:3000
 ```
 
-### 5️⃣ Use the App (1 min)
+### 5️⃣ Use the App (2 min)
 
 1. Open [http://localhost:3000](http://localhost:3000)
 2. Click **"🔐 Connect with Yoto"** (authentication is required before using any features)
 3. Authenticate with your Yoto account
-4. Click **"Generate F1 Card"**
-5. Watch the real-time status: Queued → Processing → Completed
-6. Check your Yoto library - your card is ready! 🎉
+4. Click **"Generate F1 Card"** to fetch and generate race data
+5. Review the generated content in the expandable sections
+6. Click **"📤 Send to Yoto"** to deploy the card to your library
+7. Watch the real-time status: Queued → Processing → Completed
+8. Check your Yoto library - your card is ready! 🎉
+
+**Note:** The two-step process (Generate → Send) is a development feature that allows you to review content before deployment. This may be streamlined in future releases.
 
 **What You'll Get:**
 
 - Multiple chapters for the upcoming race weekend
-- Chapter 1: Overall race weekend overview
+- Chapter 1: Race Weekend Overview with country flag icon 🇸🇬
 - Chapters 2+: Individual sessions (Practice 1-3, Qualifying, Sprint, Race)
-- Race car icon (🏎️) displayed on your Yoto player
+- Proper Grand Prix names (e.g., "Singapore Grand Prix" not just "Singapore")
+- Circuit type information (permanent vs. street circuit)
+- Race car icon (🏎️) on session chapters
 - All times automatically converted to your local timezone based on your IP address
 
 ## 🎯 First Time Tips
