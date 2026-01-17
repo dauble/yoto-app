@@ -12,10 +12,17 @@ Welcome to the Yoto F1 Card Generator documentation! This directory contains all
 ### Features
 
 - **[FEATURES.md](FEATURES.md)** - Comprehensive guide to all features:
+  - Two-Step Card Generation (Development Mode)
+  - Meetings API Integration
+  - Country Flag Icons
+  - Circuit Type Information
   - Card Cover Image Upload
   - Real-Time Job Status Polling
   - MYO Audio File Upload
   - Enhanced Race Details (country, circuit type, weather)
+- **[TWO_STEP_WORKFLOW.md](TWO_STEP_WORKFLOW.md)** - Detailed guide to the two-step generation process
+- **[MEETINGS_API.md](MEETINGS_API.md)** - Technical documentation on Meetings API migration
+- **[SESSIONS_CHAPTERS_FEATURE.md](SESSIONS_CHAPTERS_FEATURE.md)** - Session-based chapters implementation
 
 ### Development
 
