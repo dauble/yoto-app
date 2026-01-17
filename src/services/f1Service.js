@@ -318,7 +318,12 @@ function formatRaceData(meeting) {
 export function generateF1Script(raceData, driverStandings, teamStandings) {
   // Chapter 1: Next Race
   // Build circuit type description
-  const circuitTypeDesc = getCircuitTypeDescription(raceData.circuitType) || "a racing circuit";
+  const circuitTypeDesc = getCircuitTypeDescription(raceData.circuitType);
+  
+  // Build circuit description - only include type if known
+  const circuitDescription = circuitTypeDesc 
+    ? `The drivers will be racing at the ${raceData.circuit} circuit, which is ${circuitTypeDesc}.`
+    : `The drivers will be racing at the ${raceData.circuit} circuit.`;
 
   const chapter1 = `Chapter 1: Next Race
 
@@ -326,7 +331,7 @@ Hello Formula 1 fans! Let me tell you about the next race in the ${raceData.year
 
 The next race is the ${raceData.name}, taking place in ${raceData.location}, ${raceData.country}.
 
-The drivers will be racing at the ${raceData.circuit} circuit, which is ${circuitTypeDesc}.
+${circuitDescription}
 
 The race weekend begins on ${raceData.date}, with the main race at ${raceData.time}.
 
